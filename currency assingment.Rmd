@@ -1,0 +1,105 @@
+---
+title: "Currency"
+author: "Rajshree"
+date: "2023-11-16"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(tseries)
+library(forecast)
+library(urca)
+```
+
+```{r}
+View(INR)
+str(INR)
+```
+
+```{r}
+INR.ts<- ts(INR, start= c(2018,11),frequency = 7)
+```
+
+```{r}
+plot(INR.ts)
+
+```
+REMOVING THE DATE VARIABLE FROM THE DATA
+```{r}
+curr<- INR[,-1]
+View(curr)
+```
+declaring the above data as time series 
+
+```{r}
+curr.ts<- ts(curr,start= c(2018,11), frequency=7)
+View(curr.ts)
+```
+
+```{r}
+plot(curr.ts)
+
+```
+
+decomposing data
+```{r}
+CurrINR.ts= decompose(curr.ts)
+View(CurrINR.ts)
+trend <- CurrINR.ts$trend
+seasonal <- CurrINR.ts$seasonal
+random <- CurrINR.ts$random
+```
+
+```{r}
+plot(trend, main = "Trend Component")
+plot(seasonal, main = "Seasonal Component")
+plot(random, main = "Random/Residual Component")
+
+```
+```{r}
+str(curr.ts)
+curr1.ts<- curr.ts[-c(1:4)]
+adf.test(curr1.ts)
+pp.test(curr1.ts)
+kpss.test(curr1.ts)
+```
+
+```{r}
+adf.test(diff(curr1.ts))
+pp.test(diff(curr1.ts))
+kpss.test(diff(curr1.ts))
+
+```
+
+```{r}
+adf1=ur.df(curr1.ts, type="none",selectlags = "AIC")
+summary(adf1)
+
+```
+
+```{r}
+acf(curr1.ts,lag.max = 30)
+pacf(curr1.ts,lag.max = 20)
+
+```
+
+```{r}
+par(mfrow=c(1,2))
+acf(curr1.ts,lag.max = 20)
+pacf(curr1.ts,lag.max = 20)
+```
+
+```{r}
+fit1<- Arima(curr1.ts,order=c(1,1,0))
+summary(fit1)
+
+```
+
+```{r}
+model<-auto.arima(curr1.ts,ic="aic",trace=TRUE)
+
+```
+
